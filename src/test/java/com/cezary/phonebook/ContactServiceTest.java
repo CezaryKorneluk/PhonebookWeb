@@ -1,22 +1,39 @@
 package com.cezary.phonebook;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class ContactServiceTest {
 
-    private final ContactService contactService = new ContactService();
+    @Mock
+    private ContactRepository contactRepository;
+    private ContactService contactService;
+
+    @BeforeEach
+    void initService() {
+        contactService = new ContactService(contactRepository);
+    }
 
     @Test
     void shouldAddNewContact() {
+        //given
+        when(contactRepository.findAll()).thenReturn(List.of());
+        Contact expectedContact = new Contact(1, "name", "123", "a@gmail.com");
+
         // when
         contactService.addContact("name", "123", "a@gmail.com");
 
         // then
-        final var contacts = contactService.getContacts();
-        assertEquals(1, contacts.size());
-        assertEquals(1, contacts.get(0).getId());
+        verify(contactRepository, times(1)).save(expectedContact);
     }
 
     @Test
